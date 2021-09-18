@@ -1,0 +1,26 @@
+input{
+  font-family: KanitLight;
+}
+.page-home {
+  text-align: center;
+  background: url(../Image/Background/bg01.jpg) no-repeat;
+  -webkit-background-size: cover;
+  background-size: cover;
+  width: 100%;
+  min-height: 100vh;
+  height: 100%;
+  padding: 10px;
+}
+.component {
+   display: flex;
+   flex-direction: column;
+   justify-content: center;
+   align-items: center;
+   padding-bottom: 20px;
+}
+.title-home{
+    color:gray;
+    -webkit-text-stroke: 2px black;
+    font-size: 70px;
+    font-family: THSarabunPSK;
+}

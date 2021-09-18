@@ -1,0 +1,12 @@
+const fetch = firebase.database().ref("Location_Map");
+    fetch.on("value", (snap) => {
+      const data = snap.val();
+      const dataList=[]
+      for(let i in data){
+        dataList.push({ lon: data[i].lon,
+          lat: data[i].lat });
+      }
+      for (var i = 0; i < dataList.length; ++i) {
+        map.Overlays.add(new longdo.Marker(dataList[i]));
+      }
+    }); 

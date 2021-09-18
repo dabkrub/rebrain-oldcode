@@ -1,0 +1,49 @@
+.page-BuyPackage {
+    /* text-align: center; */
+    margin-left: 100px;
+    background-color: white;
+    opacity: 0.9;
+    width: 500px;
+    border-style: solid;
+    border-radius: 50px;
+    margin-top: 10px;
+  }
+  .main-BuyPackage {
+    /* width: 100%; */
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    margin: auto;
+  }
+  .form-ฺBuyPackage {
+    width: 100%;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+   margin-right: 10px;
+  }
+  .input-BuyPackage {
+    margin: 5px;
+  }
+  .col{
+    float: left;
+    width: 50%;
+    
+  }
+  .row {
+    display: flex;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 10px;
+    margin-left: 100px;
+    margin-bottom: 20px;
+    width: 1000px;
+  }
+  .check-box{
+    display: flex;
+    flex-direction: column;
+  }
+  .button-BuyPackage{
+    margin: 10px;
+  }

@@ -1,0 +1,28 @@
+.page-user{
+    content: "";
+    display: flex;
+    clear: both;
+}
+.column-left {
+  float: left;
+  background-color:black;
+  width: 13%;
+  color:white;
+  padding: 10px;
+  height:100%; 
+  text-align: center;
+
+  margin: 0;
+  font-size: 80% /*smaller*/;
+  font-weight: bold;
+  line-height: 1.1;
+  position: fixed;
+  }
+  .column-rigth {
+    float: left;
+    margin-left: 15%; /*20*/
+    background-color: white;
+    width: 100%;
+    padding: 1px;
+    min-height: 100vh;
+  }

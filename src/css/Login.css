@@ -1,0 +1,20 @@
+.page-login {
+  text-align: center;
+  background-color: white;
+  opacity: 0.9;
+  width: 500px;
+  border-style: solid;
+  border-radius: 50px;
+}
+.main-login {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.form-login {
+  padding: 10px;
+  display: flex;
+}
+.login-input {
+  margin: 10px;
+}

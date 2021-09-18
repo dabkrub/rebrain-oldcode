@@ -1,0 +1,291 @@
+import React, { Component } from "react";
+import {
+  DayPilot,
+  DayPilotCalendar,
+  DayPilotNavigator,
+  DayPilotScheduler,
+} from "daypilot-pro-react";
+import "../css/CalendarStyles.css";
+import firebase from "../Firebase/firebase";
+
+const styles = {
+  wrap: {
+    display: "flex",
+    color: "red",
+  },
+  left: {
+    marginRight: "0px",
+  },
+  main: {
+    flexGrow: "1",
+  },
+};
+
+class Calendar extends Component {
+  constructor(props) {
+    if (localStorage.getItem("isLogin") == 1) {
+      console.log(localStorage.getItem("isLogin") + "Sucess");
+    } else {
+      console.log(localStorage.getItem("isLogin") + "Fail");
+      props.history.push("/");
+    }
+
+    let newDate = new Date();
+    let date = newDate.getDate();
+    let month = newDate.getMonth() + 1;
+    let year = newDate.getFullYear();
+    //ตัวแปร วัน/เดือน/ปี // console.log("newDate",date+"-"+month+"-"+year);
+
+    // if(month < 10){month = "0"+month;}else{month = month}
+    month = month < 10 ? "0" + month : (month = month); //short if
+    let DateToday = year + "-" + month + "-" + date;
+    // console.log("DateToday", DateToday);
+
+    super(props);
+
+    this.state = {
+      startDate: DateToday,
+      days: 1,
+      scale: "CellDuration",
+      cellDuration: 30,
+      resources: [],
+      timeHeaders: [
+        { groupBy: "Day", format: "dd/MM/yyyy" },
+        { groupBy: "Hour", format: "hh:mm" },
+      ],
+      cellWidthSpec: "Auto",
+      cellWidth: 50,
+      eventDeleteHandling: "Update",
+      //Add to firebase
+      onTimeRangeSelected: (args) => {
+        let dp = this.scheduler;
+        DayPilot.Modal.prompt("Create a new event:", "ระบุบตารางเวลา").then(
+          function (modal) {
+            dp.clearSelection();
+            if (!modal.result) {
+              return;
+            }
+            const fireAddRef = firebase.database().ref("Calendar");
+            const fireAdd = {
+              id: DayPilot.guid(),
+              start: args.start,
+              end: args.end,
+              text: modal.result,
+              doctor: "หมอเบียร์",
+              color: "#red",
+              resource: args.resource,
+              resource_query:args.resource+args.start
+            };
+            fireAddRef.push(fireAdd);
+            //window.location.reload()
+          }
+        );
+      },
+      onEventResized: (args) => {
+        console.log(
+          "Event resized: ",
+          args.e.data.id,
+          args.newStart,
+          args.newEnd
+        );
+        this.scheduler.message("Event resized: " + args.e.data.text);
+      },
+      //แบบคลิก ------------------------------------
+      onEventClick: (args) => {
+        let dp = this.scheduler;
+        DayPilot.Modal.prompt("Update event text:", args.e.text()).then(
+          function (modal) {
+            var check = true;
+            if (!modal.result) {
+              return;
+            }
+            args.e.data.text = modal.result;
+            dp.events.update(args.e);
+
+            const todoRef = firebase.database().ref("Calendar");
+            todoRef.on("value", (snapshot) => {
+              const todos = snapshot.val();
+              const todoList = [];
+              for (let id in todos) {
+                todoList.push({ id, ...todos[id] });
+                if (todos[id].id == args.e.data.id && check == true) {
+                  const fireupdateRef = firebase
+                    .database()
+                    .ref(`Calendar`)
+                    .child(id);
+                  fireupdateRef.update({
+                    text: modal.result,
+                  });
+                  check = false;
+                }
+              }
+            });
+          }
+        );
+      },
+      onEventResize: (args) => {
+        var check = true;
+        const todoRef = firebase.database().ref("Calendar");
+        todoRef.on("value", (snapshot) => {
+          const todos = snapshot.val();
+          const todoList = [];
+          for (let id in todos) {
+            todoList.push({ id, ...todos[id] });
+            if (todos[id].id == args.e.data.id && check == true) {
+              const fireupdateStartRef = firebase
+                .database()
+                .ref(`Calendar/${id}/start`); //.child(id)
+              fireupdateStartRef.update({
+                value: args.newStart.value,
+              });
+              const fireupdateEndRef = firebase
+                .database()
+                .ref(`Calendar/${id}/end`); //.child(id)
+              fireupdateEndRef.update({
+                value: args.newEnd.value,
+              });
+              check = false;
+            }
+          }
+        });
+      },
+      onEventMove: (args) => {
+        var check = true;
+        const todoRef = firebase.database().ref("Calendar");
+        todoRef.on("value", (snapshot) => {
+          const todos = snapshot.val();
+          const todoList = [];
+          for (let id in todos) {
+            todoList.push({ id, ...todos[id] });
+            if (todos[id].id == args.e.data.id && check == true) {
+              const fireupdateStartRef = firebase
+                .database()
+                .ref(`Calendar/${id}/start`); //.child(id)
+              fireupdateStartRef.update({
+                value: args.newStart.value,
+              });
+              const fireupdateEndRef = firebase
+                .database()
+                .ref(`Calendar/${id}/end`); //.child(id)
+              fireupdateEndRef.update({
+                value: args.newEnd.value,
+              });
+              const fireupdateresourceRef = firebase
+                .database()
+                .ref(`Calendar/${id}`); //.child(id)
+              fireupdateresourceRef.update({
+                resource: args.newResource,
+              });
+              check = false;
+            }
+          }
+        });
+      },
+      onEventDeleted: (args) => {
+        const DeleteRef = firebase.database().ref("Calendar");
+        DeleteRef.on("value", (snapshot) => {
+          const todos = snapshot.val();
+          const todoList = [];
+          for (let id in todos) {
+            todoList.push({ id, ...todos[id] });
+            if (args.e.data.id == todos[id].id) {
+              DeleteRef.child(id).remove();
+            }
+          }
+        });
+      },
+    };
+  }
+  componentDidMount() {
+    const DoctorData=firebase.database().ref("Doctor_History")
+    DoctorData.on("value",snapshot=>{
+      const data=snapshot.val()
+      const dataList=[]
+      for(let i in data){
+        dataList.push({i,...data[i]})
+      }
+      const datatest=[]
+      for(let id in dataList){
+        datatest.push({id,...{name:dataList[id].Name,id:dataList[id].resource}})
+       
+      }
+      console.log(datatest)
+      this.setState({
+        resources:datatest
+      })
+    })
+    const todoRef = firebase.database().ref("Calendar");
+    todoRef.on("value", (snapshot) => {
+      const todos = snapshot.val();
+      const todoList = [];
+      for (let id in todos) {
+        todoList.push({ id, ...todos[id] });
+        console.log("id", id);
+      }
+      console.log("todoList", todoList);
+      for (let i in todoList) {
+        this.scheduler.events.remove(
+          new DayPilot.Event({
+            start: todoList[i].start.value,
+            end: todoList[i].end.value,
+            id: todoList[i].id,
+            text: todoList[i].text,
+            resource: todoList[i].resource,
+          })
+        );
+      }
+      for (let i in todoList) {
+        this.scheduler.events.add(
+          new DayPilot.Event({
+            start: todoList[i].start.value,
+            end: todoList[i].end.value,
+            id: todoList[i].id,
+            text: todoList[i].text,
+            resource: todoList[i].resource,
+          })
+        );
+      }
+    });
+  }
+  render() {
+    var { ...config } = this.state;
+    return (
+      <div>
+        <h1>Test Local {localStorage.getItem("isLogin")}</h1>
+        <div style={styles.wrap}>
+          <div style={styles.left}>
+            <DayPilotNavigator
+              selectMode={"week"}
+              showMonths={2} // 2
+              skipMonths={1}
+              onTimeRangeSelected={(args) => {
+                this.setState({
+                  startDate: args.day,
+                });
+              }}
+            />{" "}
+          </div>
+          <div style={styles.main}>
+            <DayPilotScheduler
+              {...config}
+              ref={(component) => {
+                this.scheduler = component && component.control;
+              }}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
+}
+
+export default Calendar;
+
+<TableCell align="center" scope="row">
+                        <Button
+                          color="primary"
+                          onClick={() => (setObj(value)/* , onDetail() */)}
+                        >
+                          ดูข้อมูล
+                        </Button>
+                      </TableCell>

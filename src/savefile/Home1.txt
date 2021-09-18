@@ -1,0 +1,51 @@
+import { getByPlaceholderText } from '@testing-library/dom';
+import React, { useState } from 'react';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { Navbar } from 'rsuite';
+import '../css/Home.css'
+import Calendar from './Calendar'
+export default function Home() {
+    //new Date().getFullYear() + '/' + (new Date().getMonth() + 1) + '/' + new Date().getDate()
+    const [ObjDate, setObjDate] = useState(new Date())
+    const [CurrentTime, setCurrentTime] = useState(ObjDate.getFullYear() + "/" + (ObjDate.getMonth() + 1) + "/" + ObjDate.getDate());
+    const [Day, setDay] = useState('')
+    const [Month, setMonth] = useState('')
+    const [Year, setYear] = useState('')
+    const [Hours, setHours] = useState('')
+    const [Minutes, setMinutes] = useState('')
+    const [StartDate, setStartDate] = useState(new Date());
+    const [EndDate, setEndDate] = useState(new Date());
+
+    function click() {
+        alert(StartDate)
+    }
+    return (
+        <div>
+            <h1>Home</h1>
+            <div className="Date">
+                <p>Date Start</p>
+                <DatePicker
+                    selected={StartDate}
+                    onChange={date => setStartDate(date)}
+                    isClearable
+                    placeholderText="Start Date"
+                />
+               
+            </div>
+            <div className="Date">
+                <p>Date End</p>
+            <DatePicker
+                    selected={EndDate}
+                    onChange={date => setEndDate(date)}
+                    isClearable
+                    placeholderText="End Date"
+                />
+            </div>
+            <button type="button" onClick={click}>Save</button>
+            <Calendar/>
+        </div>
+
+    );
+}
+

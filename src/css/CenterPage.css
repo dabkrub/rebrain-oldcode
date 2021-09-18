@@ -1,0 +1,9 @@
+.main-page{
+  background-color: rgb(230, 0, 0);
+  flex: 100%;
+  margin: 100px;
+  text-align: center;
+  padding: 30px;
+  margin: 30px;
+}
+

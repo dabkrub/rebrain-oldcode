@@ -1,0 +1,130 @@
+import React, { Component } from "react";
+import {
+  DayPilot,
+  DayPilotCalendar,
+  DayPilotNavigator,
+  DayPilotScheduler,
+} from "daypilot-pro-react";
+import "../css/CalendarStyles.css";
+import firebase from "../Firebase/firebase";
+const styles = {
+  wrap: {
+    display: "flex",
+    color: "red",
+  },
+  left: {
+    marginRight: "0px",
+  },
+  main: {
+    flexGrow: "1",
+  },
+};
+export default class Calendar_Doctor extends Component {
+  constructor(props) {
+    let newDate = new Date();
+    let date = newDate.getDate();
+    let month = newDate.getMonth() + 1;
+    let year = newDate.getFullYear();
+    month = month < 10 ? "0" + month : (month = month);
+    var DateToday = year + "-" + month + "-" + date;
+    super(props);
+    this.state = {
+      startDate: DateToday,
+      DateTime: "",
+      days: 7,
+      scale: "Day",
+      resources: [],
+      timeHeaders: [{ groupBy: "Month" }, { groupBy: "Day", format: "d" }],
+      DateTodayState:
+        new Date().getFullYear() + "-" + new Date().getMonth() + 1 < 10
+          ? "0" + new Date().getMonth() + 1
+          : new Date().getMonth() + 1 + "-" + new Date().getFullYear(),
+      cellWidthSpec: "Auto",
+      cellWidth: 50,
+      /* onEventClick: (args) => {
+        console.log("Click " + args.e.data.start);
+        this.setState({
+          DateTime: args.e.data.start,
+        });
+      }, */
+    };
+  }
+
+  componentDidMount() {
+    const dataPull = firebase.database().ref("Calendar");
+    dataPull.on("value", (snapshort) => {
+      const data = snapshort.val();
+      const dataList = [];
+      for (let i in data) {
+        console.log("data[i].resource: " + data[i].resource);
+        if (data[i].resource == localStorage.getItem("Username_Doctor")) {
+          dataList.push({ i, ...data[i] });
+        } else {
+          console.log("Fail");
+        }
+      }
+      const dataResource = [];
+      for (let id in dataList) {
+        dataResource.push({
+          id,
+          ...{ name: dataList[id].doctor, id: dataList[id].resource_query },
+        });
+      }
+      this.setState({
+        resources: dataResource,
+      });
+      for (let i in dataList) {
+        this.scheduler.events.remove(
+          new DayPilot.Event({
+            start: dataList[i].start.value,
+            end: dataList[i].end.value,
+            id: dataList[i].id,
+            text: dataList[i].text,
+            resource: dataList[i].resource_query,
+          })
+        );
+      }
+      for (let i in dataList) {
+        this.scheduler.events.add(
+          new DayPilot.Event({
+            start: dataList[i].start.value,
+            end: dataList[i].end.value,
+            id: dataList[i].id,
+            text: dataList[i].text,
+            resource: dataList[i].resource_query,
+          })
+        );
+      }
+    });
+  }
+  render() {
+    var { ...config } = this.state;
+    console.log("DateTime " + this.state.DateTime);
+    return (
+      <div>
+        <div style={styles.wrap}>
+          <div style={styles.left}>
+            <DayPilotNavigator
+              selectMode={"Day"}
+              showMonths={2} // 2
+              skipMonths={1}
+              onTimeRangeSelected={(args) => {
+                this.setState({
+                  startDate: args.day,
+                });
+              }}
+            />{" "}
+          </div>
+          <div style={styles.main}>
+            <DayPilotScheduler
+              {...config}
+              ref={(component) => {
+                this.scheduler = component && component.control;
+              }}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
+}

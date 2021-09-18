@@ -1,0 +1,25 @@
+import React, { Component } from 'react';
+import Fawn from './Detail'
+class Deer extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            skinColour: 'brown'
+        }
+        this.updateColour = this.updateColour.bind(this);
+    }
+  
+    updateColour() {
+        this.setState({
+            skinColour: 'burlywood'
+        });
+    }
+  
+    render () {
+      return(
+        <Fawn skinColour={this.state.skinColour}
+                        updateSkinColour={this.updateColour} />
+      )
+    }
+  }
+  export default Deer

@@ -1,0 +1,47 @@
+.page-InputHistory {
+    /* text-align: center; */
+    margin-left: 100px;
+    background-color: white;
+    opacity: 0.9;
+    width: 500px;
+    border-style: solid;
+    border-radius: 50px;
+    margin-top: 10px;
+  }
+  .main-InputHistory {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    /* margin-left: 50px; */
+  }
+  .form-InputHistory {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    margin: auto;
+  }
+  .input-InputHistory {
+    margin: 5px;
+  }
+  .col{
+    float: left;
+    width: 50%;
+    
+  }
+  .row {
+    display: flex;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 10px;
+    margin-left: 100px;
+    margin-bottom: 20px;
+    width: 1000px;
+  }
+  .check-box{
+    display: flex;
+    flex-direction: column;
+  }
+  .button-InputHistory{
+    margin: 10px;
+  }

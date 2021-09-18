@@ -1,0 +1,52 @@
+.page-PrimaryCase {
+    /* text-align: center; */
+    margin-left: 100px;
+    background-color: white;
+    opacity: 0.9;
+    width: 500px;
+    border-style: solid;
+    border-radius: 50px;
+    margin-top: 10px;
+  }
+  .main-PrimaryCase {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    margin-left: 50px;
+  }
+  .form-PrimaryCase {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+   
+  }
+  .input-PrimaryCase {
+    margin: 5px;
+  }
+  .col{
+    float: left;
+    width: 100%;
+    
+  }
+  .row {
+    display: flex;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 10px;
+    margin-left: 100px;
+    margin-bottom: 20px;
+    width: 1000px;
+  }
+  .check-box{
+    display: flex;
+    flex-direction: column;
+  }
+  .button-PrimaryCase{
+    margin: 10px;
+  }
+  hr{
+    width: 20%;
+    background-color: brown;
+    color: brown;
+  }

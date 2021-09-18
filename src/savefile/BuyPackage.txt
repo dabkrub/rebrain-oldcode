@@ -1,0 +1,390 @@
+import React, { useEffect, useState } from "react";
+import firebase from "../Firebase/firebase";
+import "../css/BuyPackage.css";
+
+import InputLabel from "@material-ui/core/InputLabel";
+import MenuItem from "@material-ui/core/MenuItem";
+import Select from "@material-ui/core/Select";
+
+import TextField from "@material-ui/core/TextField";
+import Button from "@material-ui/core/Button";
+
+import { makeStyles } from "@material-ui/core/styles";
+import Table from "@material-ui/core/Table";
+import TableBody from "@material-ui/core/TableBody";
+import TableCell from "@material-ui/core/TableCell";
+import TableContainer from "@material-ui/core/TableContainer";
+import TableHead from "@material-ui/core/TableHead";
+import TableRow from "@material-ui/core/TableRow";
+import Paper from "@material-ui/core/Paper";
+
+import TablePagination from "@material-ui/core/TablePagination";
+
+import { useHistory } from "react-router-dom";
+const useStyles = makeStyles((theme) => ({
+  container: {
+    display: "flex",
+    flexWrap: "wrap",
+  },
+  textField: {
+    marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(1),
+    width: 200,
+  },
+  table: {
+    minWidth: 650,
+  },
+}));
+
+export default function BuyPackage() {
+  const history = useHistory();
+  const [PackageList, setPackageList] = useState([]);
+  const [state, setState] = useState({
+    PackageId: "",
+    PackageName: "",
+    PackageAmount: 0,
+    PackagePrice: "",
+  });
+  const [Type, setType] = useState("");
+  const [TimeDate, setTimeDate] = useState("");
+  const [BankName, setBankName] = useState("");
+  const [Time, setTime] = useState("");
+  const [UserList, setUserList] = useState([]);
+  const [UserID, setUserID] = useState("");
+  const [UserName, setUserName] = useState("");
+  const [Usertext, setUsertext] = useState("");
+  const [User_Person_ID, setUser_Person_ID] = useState("");
+  const [TradeList, setTradeList] = useState([]);
+  const [TableTradeList, setTableTradeList] = useState([]);
+  const [stateId, setStateId] = useState({ id: null, rows: [] });
+  const [page, setPage] = useState(0);
+  const [PackageId, setPackageId] = useState("");
+  const [PackageName, setPackageName] = useState("");
+  const [PackageAmount, setPackageAmount] = useState(0);
+  const [PackagePrice, setPackagePrice] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [UserCountPackage, setUserCountPackage] = useState("");
+  const [CountPackageUpdate, setCountPackageUpdate] = useState("")
+  const [Obj, setObj] = useState([]);
+  useEffect(() => {
+    const PackageRef = firebase.database().ref("Package");
+    PackageRef.on("value", (snapshot) => {
+      const Packages = snapshot.val();
+      const PackageList = [];
+      for (let id in Packages) {
+        PackageList.push({ id, ...Packages[id] });
+      }
+      setPackageList(PackageList);
+    });
+
+    const UserRef = firebase.database().ref("User_History");
+    UserRef.on("value", (snapshot) => {
+      const Users = snapshot.val();
+      const UserList = [];
+      for (let id in Users) {
+        UserList.push({ id, ...Users[id] });
+      }
+      setUserList(UserList);
+    });
+
+    const TradeRef = firebase.database().ref("Trade_History");
+    TradeRef.on("value", (snapshot) => {
+      const Trades = snapshot.val();
+      const TradeList = [];
+      for (let id in Trades) {
+        TradeList.push({ id, ...Trades[id] });
+      }
+      console.log("TradeList", TradeList);
+    });
+
+    const TableTradeRef = firebase.database().ref("Trade_History");
+    TableTradeRef.on("value", (snapshot) => {
+      const TableTrades = snapshot.val();
+      const TableTradeList = [];
+      for (let id in TableTrades) {
+        TableTradeList.push({ id, ...TableTrades[id] });
+      }
+      setTableTradeList(TableTradeList);
+      setStateId({ id: null, rows: TableTradeList });
+    });
+  }, []);
+
+  const onSaveData = () => {
+    var oldpackage=parseInt(UserCountPackage)
+    var addpackage=parseInt(PackageAmount)
+    var SumPackage=oldpackage+addpackage
+    const Add_firebase = firebase.database().ref("Trade_History");
+    const Trade = {
+      bill: TradeList + 1,
+      PackageId: PackageId,
+      PackageName: PackageName,
+      PackageAmount: PackageAmount,
+      PackagePrice: PackagePrice,
+      Type: Type,
+      TimeDate: TimeDate,
+      BankName: BankName,
+      Time: Time,
+      UserName: UserName,
+      User_Person_ID: User_Person_ID,
+      text: Usertext,
+    };
+    Add_firebase.push(Trade); 
+    const updatePackage = firebase.database().ref("User_History").child(UserID);
+    updatePackage.update({
+      CountPackage:parseInt(UserCountPackage)+parseInt(PackageAmount),
+    }); 
+    console.log(UserCountPackage)
+  window.location.reload() 
+  };
+
+  const onClearData = () => {
+    console.log("ClearData");
+  };
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(+event.target.value);
+    setPage(0);
+  };
+
+  const classes = useStyles();
+
+  function deleteBill(id) {
+    const deleteBillRef = firebase.database().ref("Trade_History").child(id);
+    deleteBillRef.remove();
+    // alert(`hello, ${id}`);
+  }
+  return (
+    <div>
+      <div className="main-BuyPackage">
+        <div className="form-BuyPackage">
+          <h1>ขายแพ็คเกจ</h1>
+          <div className="input-InputHistory">
+            <InputLabel>เลือกแพ็คเกจ</InputLabel>
+            <Select
+              style={{ float: "left", width: "100%", margin: "10px" }}
+              // value={"xxxx"}
+            >
+              {PackageList.map((Package) => (
+                <MenuItem
+                  onClick={() => (
+                    setPackageId(Package.id),
+                    setPackageName(Package.NamePackage),
+                    setPackageAmount(Package.PackageAmount),
+                    setPackagePrice(Package.PackagePrice)
+                  )}
+                  key={Package.id}
+                  value={Package.NamePackage}
+                >
+                  {Package.NamePackage} / จำนวน {Package.PackageAmount} ครั้ง /
+                  ราคา {Package.PackagePrice} บาท
+                </MenuItem>
+              ))}
+            </Select>
+
+            <InputLabel>รูปแบบการจ่าย</InputLabel>
+            <Select
+              style={{ float: "left", width: "100%", margin: "10px" }}
+              value={Type}
+              onChange={(e) => setType(e.target.value)}
+            >
+              <MenuItem key={1} value={"เงินสด"}>
+                เงินสด
+              </MenuItem>
+              <MenuItem key={2} value={"โอนธนาคาร"}>
+                โอนธนาคาร
+              </MenuItem>
+            </Select>
+
+            <TextField
+              className="input-text"
+              id="date"
+              style={{ width: "250px", margin: "5px" }}
+              label="วันที่"
+              type="date"
+              onChange={(e) => setTimeDate(e.target.value)}
+              value={TimeDate}
+            />
+
+            <TextField
+              className="input-text"
+              id="time"
+              style={{ width: "250px", margin: "5px" }}
+              label="เวลาจ่ายเงิน"
+              type="time"
+              onChange={(e) => setTime(e.target.value)}
+              value={Time}
+            />
+
+            <TextField
+              className="input-text"
+              id="outlined-basic"
+              // required
+              style={{ width: "695px", margin: "5px" }}
+              type="text"
+              label="ธนาคาร"
+              variant="outlined"
+              onChange={(e) => setBankName(e.target.value)}
+              value={BankName}
+            />
+
+            <InputLabel>ชื่อเคส - (ชื่อคนไข้) - (เหลือจำนวนการจอง)</InputLabel>
+            <Select
+              style={{ float: "left", width: "100%", margin: "10px" }}
+              // value={"xxxx"}
+            >
+              {UserList.map((User) => (
+                <MenuItem
+                  onClick={() => (
+                    setUserID(User.id),
+                    setUserName(User.Name),
+                    setUser_Person_ID(User.Person_ID),
+                    setUsertext(User.text),
+                    setUserCountPackage(User.CountPackage)
+                  )}
+                  key={User.id}
+                  value={User.Name}
+                >
+                  <a style={{ color: "#FF0000" }}>
+                    {" "}
+                    {User.text == ""
+                      ? "ชื่อเคสยังไม่ได้ระบุ : "
+                      : "ชื่อเคส : " + User.text}
+                  </a>{" "}
+                  -<a style={{ color: "#00CC00" }}> ({User.Name}) </a> -
+                  <a style={{ color: "#0000FF" }}>
+                    {" "}
+                    เหลือจำนวนการจอง ({User.CountPackage})
+                  </a>
+                </MenuItem>
+              ))}
+            </Select>
+          </div>
+
+          <br></br>
+          <br></br>
+
+          <div className="input-BuyPackage">
+            <div className="button-BuyPackage">
+              <Button
+                variant="contained"
+                color="primary"
+                style={{ width: "200px", marginLeft: "30%" }}
+                onClick={onSaveData}
+              >
+                บันทึกข้อมูล
+              </Button>
+              <Button
+                variant="contained"
+                color="primary"
+                style={{ width: "200px", marginLeft: "10px" }}
+                onClick={onClearData}
+              >
+                ล้างข้อมูล
+              </Button>
+            </div>
+          </div>
+
+          <TableContainer component={Paper}>
+            <Table className={classes.table} aria-label="simple table">
+              <TableHead>
+                <TableRow>
+                  <TableCell>เลขที่บิล</TableCell>
+                  <TableCell align="right">วันที่ชำระ</TableCell>
+                  <TableCell align="right">ชื่อเคส</TableCell>
+                  <TableCell align="right">รายชื่อคนซื้อแพ็คเกจ</TableCell>
+                  <TableCell align="right">ชื่อแพ็คเกจ</TableCell>
+                  <TableCell align="right">จำนวน</TableCell>
+                  <TableCell align="right">ราคา</TableCell>
+                  <TableCell align="right">รูปแบบการจ่าย</TableCell>
+                  <TableCell align="center">ดูบิลใบเสร็จ</TableCell>
+                  <TableCell align="center">ลบข้อมูลใบเสร็จ</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {TableTradeList.slice(
+                  page * rowsPerPage,
+                  page * rowsPerPage + rowsPerPage
+                ).map((TableTrade, index) => (
+                  <TableRow key={index}>
+                    <TableCell component="th" scope="row">
+                      {" "}
+                      {TableTrade.bill}{" "}
+                    </TableCell>
+                    <TableCell
+                      align="right"
+                      onClick={() =>
+                        console.log("Test", "xxxxxxxxxxxxxxxxxxxx")
+                      }
+                    >
+                      {TableTrade.TimeDate} : {TableTrade.Time} น.
+                    </TableCell>
+                    <TableCell align="right">{TableTrade.text}</TableCell>
+                    <TableCell align="right">{TableTrade.UserName}</TableCell>
+                    <TableCell align="right">
+                      {TableTrade.PackageName}
+                    </TableCell>
+                    <TableCell align="right">
+                      {TableTrade.PackageAmount} ครั้ง
+                    </TableCell>
+                    <TableCell align="right">
+                      {TableTrade.PackagePrice} บาท
+                    </TableCell>
+                    <TableCell align="right">{TableTrade.Type}</TableCell>
+                    <TableCell align="center">
+                      <Button
+                        variant="contained" //secondary
+                        color="primary"
+                        onClick={() => (
+                          setObj(TableTrade),
+                          history.push({
+                            pathname: "/ViewBill",
+                            data: TableTrade,
+                          })
+                        )}
+                      >
+                        ดูข้อมูล
+                      </Button>
+                    </TableCell>
+                    <TableCell align="center">
+                      <Button
+                        variant="contained" //secondary
+                        color="secondary"
+                        onClick={() => deleteBill(TableTrade.id)}
+                      >
+                        ลบข้อมูล
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 25, 100]}
+              component="div"
+              count={stateId.rows.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onChangePage={handleChangePage}
+              onChangeRowsPerPage={handleChangeRowsPerPage}
+            />
+          </TableContainer>
+
+          {/* <br></br>
+        <h4>เลขที่ใบเสร็จ : {TradeList+1}</h4> 
+        <h4>Id : {state.PackageId}</h4> 
+        <h4>ชื่อแพ็คเกจ : {state.PackageName} / จำนวน : {state.PackageAmount} ครั้ง / ราคา : {state.PackagePrice} บาท</h4>
+        <h4>รูปแบบการจ่าย : {Type}</h4>
+        <h4>วันที่ : {TimeDate}</h4>
+        <h4>ธนาคาร : {BankName}</h4>
+        <h4>เวลาจ่ายเงิน : {Time}</h4>
+        <h4>รายชื่อคนไข้ : {User.UserName}</h4>
+        <h4>เลขบัตรประชาชน : {User.User_Person_ID}+{User.UserCountPackage}</h4> */}
+        </div>
+      </div>
+    </div>
+  );
+}
